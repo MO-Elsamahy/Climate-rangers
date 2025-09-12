@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Climate Rangers Training Program</title>
+    <meta name="description" content="Admin dashboard for managing Climate Rangers Training Program applications.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="admin-styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="admin-navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <img src="climate rangers.png" alt="Climate Rangers Logo" style="height: 36px; width: auto; margin-right: 12px;">
+                <span>Climate Rangers Admin</span>
+            </div>
+            <div class="nav-actions">
+                <div class="admin-info">
+                    <i class="fas fa-user-shield"></i>
+                    <span id="adminEmail">Loading...</span>
+                </div>
+                <button class="btn btn-outline" onclick="window.supabaseUtils.adminLogout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+        <!-- Dashboard Header -->
+        <section class="dashboard-header">
+            <div class="container">
+                <div class="header-content">
+                    <div class="header-info">
+                        <h1>Application Dashboard</h1>
+                        <p>Manage and review Climate Rangers Training Program applications</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" onclick="refreshData()">
+                            <i class="fas fa-sync-alt"></i>
+                            Refresh
+                        </button>
+                        <button class="btn btn-secondary" onclick="exportData()">
+                            <i class="fas fa-download"></i>
+                            Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Statistics Cards -->
+        <section class="stats-section">
+            <div class="container">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon pending">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="pendingCount">-</div>
+                            <div class="stat-label">Pending Applications</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon reviewing">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="reviewingCount">-</div>
+                            <div class="stat-label">Under Review</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon approved">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="approvedCount">-</div>
+                            <div class="stat-label">Approved</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon total">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="totalCount">-</div>
+                            <div class="stat-label">Total Applications</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Filters and Search -->
+        <section class="filters-section">
+            <div class="container">
+                <div class="filters-container">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Search by name, email, or organization...">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    
+                    <div class="filter-controls">
+                        <select id="statusFilter">
+                            <option value="">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="reviewing">Reviewing</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                        
+                        <select id="topicFilter">
+                            <option value="">All Topics</option>
+                            <option value="1">Introduction to Climate Diplomacy</option>
+                            <option value="2">Global Climate Governance</option>
+                            <option value="3">National & Regional Climate Policies</option>
+                            <option value="4">Climate Negotiation Strategies</option>
+                            <option value="5">Climate Finance</option>
+                        </select>
+                        
+                        <select id="orgTypeFilter">
+                            <option value="">All Organizations</option>
+                            <option value="ngo">NGO</option>
+                            <option value="igo">IGO</option>
+                            <option value="governmental">Governmental</option>
+                            <option value="private">Private Sector</option>
+                            <option value="university">University</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Applications Table -->
+        <section class="applications-section">
+            <div class="container">
+                <div class="applications-container">
+                    <div class="table-header">
+                        <h2>Applications</h2>
+                        <div class="table-actions">
+                            <button class="btn btn-sm" onclick="toggleView('table')" id="tableViewBtn">
+                                <i class="fas fa-table"></i>
+                                Table View
+                            </button>
+                            <button class="btn btn-sm btn-outline" onclick="toggleView('cards')" id="cardsViewBtn">
+                                <i class="fas fa-th-large"></i>
+                                Cards View
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div id="loadingState" class="loading-state">
+                        <div class="loading-spinner">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </div>
+                        <p>Loading applications...</p>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="emptyState" class="empty-state" style="display: none;">
+                        <div class="empty-icon">
+                            <i class="fas fa-inbox"></i>
+                        </div>
+                        <h3>No applications found</h3>
+                        <p>No applications match your current filters.</p>
+                    </div>
+
+                    <!-- Table View -->
+                    <div id="tableView" class="table-container">
+                        <table class="applications-table">
+                            <thead>
+                                <tr>
+                                    <th>Application ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Organization</th>
+                                    <th>Topic</th>
+                                    <th>Module</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="applicationsTableBody">
+                                <!-- Applications will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Cards View -->
+                    <div id="cardsView" class="cards-container" style="display: none;">
+                        <div id="applicationsCardsContainer" class="cards-grid">
+                            <!-- Application cards will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="pagination-container" id="paginationContainer">
+                        <div class="pagination-info">
+                            <span id="paginationInfo">Showing 0 of 0 applications</span>
+                        </div>
+                        <div class="pagination-controls">
+                            <button class="btn btn-sm" id="prevBtn" onclick="changePage(-1)">
+                                <i class="fas fa-chevron-left"></i>
+                                Previous
+                            </button>
+                            <span class="page-numbers" id="pageNumbers"></span>
+                            <button class="btn btn-sm" id="nextBtn" onclick="changePage(1)">
+                                Next
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Application Detail Modal -->
+    <div id="applicationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Application Details</h2>
+                <button class="modal-close" onclick="closeApplicationModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body" id="modalBody">
+                <!-- Application details will be populated here -->
+            </div>
+            
+            <div class="modal-footer">
+                <div class="status-actions">
+                    <button class="btn btn-warning" onclick="updateApplicationStatus('reviewing')">
+                        <i class="fas fa-search"></i>
+                        Mark as Reviewing
+                    </button>
+                    <button class="btn btn-success" onclick="updateApplicationStatus('approved')">
+                        <i class="fas fa-check"></i>
+                        Approve
+                    </button>
+                    <button class="btn btn-danger" onclick="updateApplicationStatus('rejected')">
+                        <i class="fas fa-times"></i>
+                        Reject
+                    </button>
+                </div>
+                <button class="btn btn-secondary" onclick="closeApplicationModal()">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Update Modal -->
+    <div id="statusModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Update Application Status</h2>
+                <button class="modal-close" onclick="closeStatusModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <p>Are you sure you want to update the status of this application?</p>
+                <div class="status-info">
+                    <strong>Application:</strong> <span id="statusAppId"></span><br>
+                    <strong>Applicant:</strong> <span id="statusAppName"></span><br>
+                    <strong>New Status:</strong> <span id="statusNewStatus" class="status-badge"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="adminNotes">Admin Notes (Optional)</label>
+                    <textarea id="adminNotes" rows="3" placeholder="Add any notes about this decision..."></textarea>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="confirmStatusUpdate()">
+                    <i class="fas fa-check"></i>
+                    Confirm Update
+                </button>
+                <button class="btn btn-secondary" onclick="closeStatusModal()">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer" class="notification-container"></div>
+
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Supabase Configuration -->
+    <script src="supabase-config.js"></script>
+    
+    <!-- Admin Script -->
+    <script src="admin-script.js"></script>
+</body>
+</html>

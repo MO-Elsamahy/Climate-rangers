@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Climate Rangers Training Program - Application Portal</title>
+    <meta name="description" content="Apply for the Climate Rangers Training Program - Choose your specialization and submit your application.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="portal-styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <img src="climate rangers.png" alt="Climate Rangers Logo" class="logo-img">
+                <span>Climate Rangers</span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    Back to Home
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Section -->
+    <section class="portal-header">
+        <div class="container">
+            <div class="header-content">
+                <div class="header-badge">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>Application Portal</span>
+                </div>
+                <h1>Apply for Climate Rangers Training Program</h1>
+                <p>Join our flagship online capacity-building initiative and become a leader in climate diplomacy and sustainable development.</p>
+                <div class="application-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">5</div>
+                        <div class="stat-label">Specialized Topics</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">15</div>
+                        <div class="stat-label">Training Modules</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">100%</div>
+                        <div class="stat-label">Online Learning</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Application Form Section -->
+    <section class="application-section">
+        <div class="container">
+            <div class="application-container">
+                <!-- Progress Steps -->
+                <div class="progress-steps">
+                    <div class="step active" data-step="1">
+                        <div class="step-number">1</div>
+                        <div class="step-label">Personal Info</div>
+                    </div>
+                    <div class="step" data-step="2">
+                        <div class="step-number">2</div>
+                        <div class="step-label">Topic Selection</div>
+                    </div>
+                    <div class="step" data-step="3">
+                        <div class="step-number">3</div>
+                        <div class="step-label">Documents</div>
+                    </div>
+                    <div class="step" data-step="4">
+                        <div class="step-number">4</div>
+                        <div class="step-label">Review & Submit</div>
+                    </div>
+                </div>
+
+                <!-- Application Form -->
+                <form id="applicationForm" class="application-form">
+                    <!-- Step 1: Personal Information -->
+                    <div class="form-step active" data-step="1">
+                        <div class="step-header">
+                            <h2>Personal Information</h2>
+                            <p>Tell us about yourself and your organization</p>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div class="form-group full-width">
+                                <label for="fullName">Full Name <span class="required">*</span></label>
+                                <input type="text" id="fullName" name="fullName" required>
+                                <div class="input-icon">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label for="organization">Affiliated Organization <span class="required">*</span></label>
+                                <input type="text" id="organization" name="organization" required>
+                                <div class="input-icon">
+                                    <i class="fas fa-building"></i>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="organizationType">Organization Type <span class="required">*</span></label>
+                                <select id="organizationType" name="organizationType" required>
+                                    <option value="">Select Type</option>
+                                    <option value="ngo">NGO (Non-Governmental Organization)</option>
+                                    <option value="igo">IGO (Intergovernmental Organization)</option>
+                                    <option value="governmental">Governmental</option>
+                                    <option value="private">Private Sector</option>
+                                    <option value="university">University</option>
+                                </select>
+                                <div class="select-icon">
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">Email Address <span class="required">*</span></label>
+                                <input type="email" id="email" name="email" required>
+                                <div class="input-icon">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label for="phone">Phone Number <span class="required">*</span></label>
+                                <input type="tel" id="phone" name="phone" required>
+                                <div class="input-icon">
+                                    <i class="fas fa-phone"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="step-actions">
+                            <button type="button" class="btn btn-primary next-step">
+                                Next Step
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Topic and Module Selection -->
+                    <div class="form-step" data-step="2">
+                        <div class="step-header">
+                            <h2>Topic & Module Selection</h2>
+                            <p>Choose your specialization area and specific module</p>
+                        </div>
+
+                        <!-- Topic Selection -->
+                        <div class="selection-section">
+                            <h3>Select Your Topic <span class="required">*</span></h3>
+                            <div class="topic-grid">
+                                <div class="topic-card" data-topic="1">
+                                    <div class="topic-icon">
+                                        <i class="fas fa-seedling"></i>
+                                    </div>
+                                    <h4>Introduction to Climate Diplomacy</h4>
+                                    <p>Build foundational knowledge of climate science and diplomacy</p>
+                                    <div class="topic-number">Topic 1</div>
+                                </div>
+
+                                <div class="topic-card" data-topic="2">
+                                    <div class="topic-icon">
+                                        <i class="fas fa-globe"></i>
+                                    </div>
+                                    <h4>Global Climate Governance</h4>
+                                    <p>Understand international climate institutions and frameworks</p>
+                                    <div class="topic-number">Topic 2</div>
+                                </div>
+
+                                <div class="topic-card" data-topic="3">
+                                    <div class="topic-icon">
+                                        <i class="fas fa-flag"></i>
+                                    </div>
+                                    <h4>National & Regional Climate Policies</h4>
+                                    <p>Analyze national climate actions and regional dynamics</p>
+                                    <div class="topic-number">Topic 3</div>
+                                </div>
+
+                                <div class="topic-card" data-topic="4">
+                                    <div class="topic-icon">
+                                        <i class="fas fa-handshake"></i>
+                                    </div>
+                                    <h4>Climate Negotiation Strategies</h4>
+                                    <p>Master negotiation tactics and coalition building</p>
+                                    <div class="topic-number">Topic 4</div>
+                                </div>
+
+                                <div class="topic-card" data-topic="5">
+                                    <div class="topic-icon">
+                                        <i class="fas fa-dollar-sign"></i>
+                                    </div>
+                                    <h4>Climate Finance</h4>
+                                    <p>Understand finance systems and proposal development</p>
+                                    <div class="topic-number">Topic 5</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Module Selection -->
+                        <div class="selection-section" id="moduleSelection" style="display: none;">
+                            <h3>Select Your Module <span class="required">*</span></h3>
+                            <div class="module-grid" id="moduleGrid">
+                                <!-- Modules will be populated dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Motivation Section -->
+                        <div class="motivation-section" id="motivationSection" style="display: none;">
+                            <div class="form-group full-width">
+                                <label for="motivation">Why did you choose this topic and module? <span class="required">*</span></label>
+                                <textarea id="motivation" name="motivation" rows="5" placeholder="Explain your interest in this specific topic and module, and how it aligns with your professional goals..." required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="step-actions">
+                            <button type="button" class="btn btn-secondary prev-step">
+                                <i class="fas fa-arrow-left"></i>
+                                Previous
+                            </button>
+                            <button type="button" class="btn btn-primary next-step" disabled>
+                                Next Step
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Document Upload -->
+                    <div class="form-step" data-step="3">
+                        <div class="step-header">
+                            <h2>Document Upload</h2>
+                            <p>Upload your CV and organization logo (optional)</p>
+                        </div>
+
+                        <div class="upload-section">
+                            <div class="upload-group">
+                                <label>Upload CV <span class="required">*</span></label>
+                                <div class="file-upload" id="cvUpload">
+                                    <input type="file" id="cv" name="cv" accept=".pdf,.doc,.docx" required>
+                                    <div class="upload-content">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <h4>Drop your CV here or click to browse</h4>
+                                        <p>Supported formats: PDF, DOC, DOCX (Max 5MB)</p>
+                                    </div>
+                                    <div class="upload-progress" style="display: none;">
+                                        <div class="progress-bar"></div>
+                                        <span class="progress-text">0%</span>
+                                    </div>
+                                </div>
+                                <div class="file-info" id="cvInfo" style="display: none;">
+                                    <div class="file-details">
+                                        <i class="fas fa-file-pdf"></i>
+                                        <span class="file-name"></span>
+                                        <span class="file-size"></span>
+                                    </div>
+                                    <button type="button" class="remove-file" data-target="cv">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="upload-group">
+                                <label>Organization Logo (Optional)</label>
+                                <div class="file-upload" id="logoUpload">
+                                    <input type="file" id="logo" name="logo" accept=".png,.jpg,.jpeg,.svg">
+                                    <div class="upload-content">
+                                        <i class="fas fa-image"></i>
+                                        <h4>Drop your organization logo here or click to browse</h4>
+                                        <p>Supported formats: PNG, JPG, JPEG, SVG (Max 2MB)</p>
+                                    </div>
+                                    <div class="upload-progress" style="display: none;">
+                                        <div class="progress-bar"></div>
+                                        <span class="progress-text">0%</span>
+                                    </div>
+                                </div>
+                                <div class="file-info" id="logoInfo" style="display: none;">
+                                    <div class="file-details">
+                                        <i class="fas fa-image"></i>
+                                        <span class="file-name"></span>
+                                        <span class="file-size"></span>
+                                    </div>
+                                    <button type="button" class="remove-file" data-target="logo">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="step-actions">
+                            <button type="button" class="btn btn-secondary prev-step">
+                                <i class="fas fa-arrow-left"></i>
+                                Previous
+                            </button>
+                            <button type="button" class="btn btn-primary next-step">
+                                Next Step
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Review and Submit -->
+                    <div class="form-step" data-step="4">
+                        <div class="step-header">
+                            <h2>Review & Submit</h2>
+                            <p>Please review your application before submitting</p>
+                        </div>
+
+                        <div class="review-section">
+                            <div class="review-card">
+                                <h3>Personal Information</h3>
+                                <div class="review-grid">
+                                    <div class="review-item">
+                                        <label>Full Name:</label>
+                                        <span id="reviewName"></span>
+                                    </div>
+                                    <div class="review-item">
+                                        <label>Organization:</label>
+                                        <span id="reviewOrganization"></span>
+                                    </div>
+                                    <div class="review-item">
+                                        <label>Type:</label>
+                                        <span id="reviewType"></span>
+                                    </div>
+                                    <div class="review-item">
+                                        <label>Email:</label>
+                                        <span id="reviewEmail"></span>
+                                    </div>
+                                    <div class="review-item">
+                                        <label>Phone:</label>
+                                        <span id="reviewPhone"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="review-card">
+                                <h3>Selected Training</h3>
+                                <div class="review-selection">
+                                    <div class="selected-topic">
+                                        <h4 id="reviewTopicTitle"></h4>
+                                        <p id="reviewTopicDesc"></p>
+                                    </div>
+                                    <div class="selected-module">
+                                        <h4 id="reviewModuleTitle"></h4>
+                                        <p id="reviewModuleDesc"></p>
+                                    </div>
+                                </div>
+                                <div class="review-motivation">
+                                    <label>Motivation:</label>
+                                    <p id="reviewMotivation"></p>
+                                </div>
+                            </div>
+
+                            <div class="review-card">
+                                <h3>Uploaded Documents</h3>
+                                <div class="review-files">
+                                    <div class="file-review" id="reviewCV">
+                                        <i class="fas fa-file-pdf"></i>
+                                        <span>CV: </span>
+                                        <span id="reviewCVName"></span>
+                                    </div>
+                                    <div class="file-review" id="reviewLogo" style="display: none;">
+                                        <i class="fas fa-image"></i>
+                                        <span>Logo: </span>
+                                        <span id="reviewLogoName"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="terms-section">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="terms" name="terms" required>
+                                <span class="checkmark"></span>
+                                I agree to the <a href="#" target="_blank">Terms and Conditions</a> and <a href="#" target="_blank">Privacy Policy</a>
+                            </label>
+                        </div>
+
+                        <div class="step-actions">
+                            <button type="button" class="btn btn-secondary prev-step">
+                                <i class="fas fa-arrow-left"></i>
+                                Previous
+                            </button>
+                            <button type="submit" class="btn btn-success submit-btn">
+                                <i class="fas fa-paper-plane"></i>
+                                Submit Application
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Hidden inputs for selected values -->
+                    <input type="hidden" id="selectedTopic" name="selectedTopic">
+                    <input type="hidden" id="selectedModule" name="selectedModule">
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2>Application Submitted Successfully!</h2>
+            <p>Thank you for your application to the Climate Rangers Training Program. We have received your submission and will review it shortly.</p>
+            <div class="application-id">
+                <strong>Application ID: <span id="applicationId"></span></strong>
+            </div>
+            <p class="next-steps">You will receive a confirmation email with further instructions within 24 hours.</p>
+            <button type="button" class="btn btn-primary" onclick="closeModal()">
+                Continue
+            </button>
+        </div>
+    </div>
+
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Supabase Configuration -->
+    <script src="supabase-config.js"></script>
+    
+    <!-- Portal Script -->
+    <script src="portal-script.js"></script>
+</body>
+</html>
