@@ -257,6 +257,10 @@
                         <i class="fas fa-times"></i>
                         Reject
                     </button>
+                    <button class="btn btn-danger-outline" onclick="confirmDeleteApplicationFromModal()">
+                        <i class="fas fa-trash"></i>
+                        Delete Application
+                    </button>
                 </div>
                 <button class="btn btn-secondary" onclick="closeApplicationModal()">
                     Close
@@ -295,6 +299,49 @@
                     Confirm Update
                 </button>
                 <button class="btn btn-secondary" onclick="closeStatusModal()">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Delete Application</h2>
+                <button class="modal-close" onclick="closeDeleteModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="warning-message">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>Are you sure you want to delete this application?</h3>
+                    <p>This action will permanently delete:</p>
+                    <ul>
+                        <li>The application record</li>
+                        <li>Uploaded CV file</li>
+                        <li>Uploaded recommendation letter</li>
+                        <li>Organization logo (if uploaded)</li>
+                    </ul>
+                    <p><strong>This action cannot be undone!</strong></p>
+                </div>
+                
+                <div class="delete-info">
+                    <strong>Application:</strong> <span id="deleteAppId"></span><br>
+                    <strong>Applicant:</strong> <span id="deleteAppName"></span><br>
+                    <strong>Organization:</strong> <span id="deleteAppOrg"></span>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="executeDelete()">
+                    <i class="fas fa-trash"></i>
+                    Yes, Delete Permanently
+                </button>
+                <button class="btn btn-secondary" onclick="closeDeleteModal()">
                     Cancel
                 </button>
             </div>

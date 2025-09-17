@@ -352,6 +352,214 @@ window.supabaseUtils = {
                 error: error.message
             };
         }
+    },
+
+    // Delete application and all related files
+    async deleteApplication(applicationId) {
+        try {
+            console.log('Deleting application:', applicationId);
+            
+            // First, get the application data to find the file URLs
+            console.log('Fetching application data for ID:', applicationId);
+            
+            const { data: applications, error: fetchError } = await supabaseClient
+                .from('applications')
+                .select('*')
+                .eq('id', applicationId);
+
+            console.log('Fetch result:', { applications, fetchError });
+
+            if (fetchError) {
+                console.error('Error fetching application:', fetchError);
+                throw new Error('Database error: ' + fetchError.message);
+            }
+
+            if (!applications || applications.length === 0) {
+                console.error('No application found with ID:', applicationId);
+                throw new Error('Application not found with ID: ' + applicationId);
+            }
+
+            const application = applications[0];
+            console.log('Application to delete:', application);
+
+            // Delete files from storage
+            const filesToDelete = [];
+            
+            if (application.cv_url) {
+                // Extract file path from URL
+                const cvPath = this.extractFilePathFromUrl(application.cv_url);
+                if (cvPath) filesToDelete.push(cvPath);
+            }
+            
+            if (application.recommendation_letter_url) {
+                const recommendationPath = this.extractFilePathFromUrl(application.recommendation_letter_url);
+                if (recommendationPath) filesToDelete.push(recommendationPath);
+            }
+            
+            if (application.logo_url) {
+                const logoPath = this.extractFilePathFromUrl(application.logo_url);
+                if (logoPath) filesToDelete.push(logoPath);
+            }
+
+            console.log('Files to delete:', filesToDelete);
+
+            // Delete files from storage
+            if (filesToDelete.length > 0) {
+                const { error: storageError } = await supabaseClient.storage
+                    .from('applications')
+                    .remove(filesToDelete);
+
+                if (storageError) {
+                    console.error('Error deleting files from storage:', storageError);
+                    // Continue with database deletion even if file deletion fails
+                }
+            }
+
+            // First, delete related records from email_logs table (if it exists)
+            console.log('Deleting related email logs for application:', applicationId);
+            
+            try {
+                // Check if email_logs table exists and has records
+                const { data: emailLogs, error: checkError } = await supabaseClient
+                    .from('email_logs')
+                    .select('id')
+                    .eq('application_id', applicationId)
+                    .limit(1);
+
+                if (checkError) {
+                    console.warn('Warning: Could not check email_logs table:', checkError);
+                } else if (emailLogs && emailLogs.length > 0) {
+                    console.log('Found email logs to delete:', emailLogs.length);
+                    
+                    const { error: emailLogsError } = await supabaseClient
+                        .from('email_logs')
+                        .delete()
+                        .eq('application_id', applicationId);
+
+                    if (emailLogsError) {
+                        console.warn('Warning: Could not delete email logs:', emailLogsError);
+                        // Try to disable the foreign key constraint temporarily
+                        console.log('Attempting to handle foreign key constraint...');
+                    } else {
+                        console.log('Email logs deleted successfully');
+                    }
+                } else {
+                    console.log('No email logs found for this application');
+                }
+            } catch (emailLogsError) {
+                console.warn('Warning: email_logs table may not exist or is not accessible:', emailLogsError);
+                // Continue with application deletion
+            }
+
+            // Now delete the application record from database
+            console.log('Attempting to delete application from database with ID:', applicationId);
+            
+            let deletedRows = 0;
+            
+            // Try direct SQL approach to handle foreign key constraints
+            try {
+                console.log('Attempting to delete application with ID:', applicationId);
+                
+                const { data: deleteData, error: deleteError } = await supabaseClient
+                    .from('applications')
+                    .delete()
+                    .eq('id', applicationId)
+                    .select();
+
+                console.log('Delete result:', { deleteData, deleteError });
+
+                if (deleteError) {
+                    console.error('Error deleting application from database:', deleteError);
+                    
+                    // If it's a foreign key constraint error, try SQL approach
+                    if (deleteError.message.includes('foreign key constraint')) {
+                        console.log('Foreign key constraint detected, trying SQL approach...');
+                        
+                        // Use RPC function or direct SQL to delete
+                        const { data: sqlResult, error: sqlError } = await supabaseClient
+                            .rpc('delete_application_with_logs', { app_id: applicationId });
+                        
+                        if (sqlError) {
+                            console.error('SQL delete also failed:', sqlError);
+                            throw new Error('Failed to delete application due to foreign key constraints. Please run the SQL commands in fix-foreign-key-constraint.sql');
+                        } else {
+                            console.log('Application deleted via SQL:', sqlResult);
+                            deletedRows = 1; // Assume success if no error
+                        }
+                    } else {
+                        throw new Error('Failed to delete application: ' + deleteError.message);
+                    }
+                } else if (!deleteData || deleteData.length === 0) {
+                    console.warn('No rows were deleted - application may not exist or RLS is blocking deletion');
+                    
+                    // Double-check if application still exists
+                    const { data: checkData } = await supabaseClient
+                        .from('applications')
+                        .select('id')
+                        .eq('id', applicationId);
+                    
+                    if (checkData && checkData.length > 0) {
+                        throw new Error('Application exists but could not be deleted - check RLS policies');
+                    } else {
+                        console.log('Application was already deleted or never existed');
+                        deletedRows = 1; // Consider this a success since the end result is the same
+                    }
+                } else {
+                    console.log('Application deleted successfully from database:', deleteData);
+                    deletedRows = deleteData.length;
+                }
+            } catch (sqlError) {
+                console.error('SQL delete failed:', sqlError);
+                throw new Error('Failed to delete application: ' + sqlError.message);
+            }
+
+            return {
+                success: true,
+                message: 'Application and related files deleted successfully',
+                deletedRows: deletedRows
+            };
+
+        } catch (error) {
+            console.error('Error deleting application:', error);
+            
+            // If it's a permission error, provide specific guidance
+            if (error.message.includes('permission') || error.message.includes('RLS') || error.message.includes('policy')) {
+                return {
+                    success: false,
+                    error: 'Permission denied. Please run the SQL commands in fix-delete-permissions.sql to enable deletion.',
+                    needsPermissionFix: true
+                };
+            }
+            
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    },
+
+    // Helper function to extract file path from Supabase storage URL
+    extractFilePathFromUrl(url) {
+        try {
+            if (!url) return null;
+            
+            // Supabase storage URLs have format: https://{project}.supabase.co/storage/v1/object/public/{bucket}/{path}
+            const urlParts = url.split('/storage/v1/object/public/applications/');
+            if (urlParts.length > 1) {
+                return urlParts[1];
+            }
+            
+            // Alternative format check
+            const altParts = url.split('/applications/');
+            if (altParts.length > 1) {
+                return altParts[1];
+            }
+            
+            return null;
+        } catch (error) {
+            console.error('Error extracting file path from URL:', error);
+            return null;
+        }
     }
 };
 

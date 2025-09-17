@@ -8,6 +8,7 @@ let itemsPerPage = 10;
 let currentView = 'table';
 let selectedApplication = null;
 let statusUpdateData = null;
+let applicationToDelete = null;
 
 // Topic mapping
 const topicsMap = {
@@ -264,6 +265,9 @@ function renderTableView() {
                     <button class="btn btn-sm btn-danger" onclick="event.stopPropagation(); quickStatusUpdate('${app.id}', 'rejected')">
                         <i class="fas fa-times"></i>
                     </button>
+                    <button class="btn btn-sm btn-danger-outline" onclick="event.stopPropagation(); confirmDeleteApplication('${app.id}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
                 </div>
             </td>
         </tr>
@@ -317,6 +321,10 @@ function renderCardsView() {
                 <button class="btn btn-sm btn-success" onclick="event.stopPropagation(); quickStatusUpdate('${app.id}', 'approved')">
                     <i class="fas fa-check"></i>
                     Approve
+                </button>
+                <button class="btn btn-sm btn-danger-outline" onclick="event.stopPropagation(); confirmDeleteApplication('${app.id}')">
+                    <i class="fas fa-trash"></i>
+                    Delete
                 </button>
             </div>
         </div>
@@ -819,3 +827,135 @@ const additionalCSS = `
 const style = document.createElement('style');
 style.textContent = additionalCSS;
 document.head.appendChild(style);
+
+// Delete Application Functions
+function confirmDeleteApplication(applicationId) {
+    console.log('confirmDeleteApplication called with ID:', applicationId);
+    console.log('Available applications:', applications.length);
+    
+    // Find the application data
+    const app = applications.find(a => a.id === applicationId);
+    console.log('Found application:', app);
+    
+    if (!app) {
+        console.error('Application not found for ID:', applicationId);
+        showNotification('Application not found', 'error');
+        return;
+    }
+    
+    if (!app.id) {
+        console.error('Application missing ID property:', app);
+        showNotification('Invalid application data', 'error');
+        return;
+    }
+    
+    // Store for deletion
+    applicationToDelete = app;
+    console.log('Stored applicationToDelete:', applicationToDelete);
+    
+    // Populate modal with application info
+    document.getElementById('deleteAppId').textContent = app.application_id || 'N/A';
+    document.getElementById('deleteAppName').textContent = app.full_name || 'N/A';
+    document.getElementById('deleteAppOrg').textContent = app.organization || 'N/A';
+    
+    // Show delete modal
+    document.getElementById('deleteModal').classList.add('show');
+}
+
+// For delete from application detail modal (overload function)
+window.confirmDeleteApplicationFromModal = function() {
+    console.log('confirmDeleteApplicationFromModal called, selectedApplication:', selectedApplication);
+    
+    if (!selectedApplication) {
+        console.error('No application selected');
+        showNotification('No application selected', 'error');
+        return;
+    }
+    
+    if (!selectedApplication.id) {
+        console.error('Selected application missing ID:', selectedApplication);
+        showNotification('Invalid application data', 'error');
+        return;
+    }
+    
+    // Store for deletion
+    applicationToDelete = selectedApplication;
+    console.log('Stored applicationToDelete from modal:', applicationToDelete);
+    
+    // Populate modal with application info
+    document.getElementById('deleteAppId').textContent = selectedApplication.application_id || 'N/A';
+    document.getElementById('deleteAppName').textContent = selectedApplication.full_name || 'N/A';
+    document.getElementById('deleteAppOrg').textContent = selectedApplication.organization || 'N/A';
+    
+    // Close application modal and show delete modal
+    closeApplicationModal();
+    document.getElementById('deleteModal').classList.add('show');
+}
+
+function closeDeleteModal() {
+    console.log('closeDeleteModal called');
+    document.getElementById('deleteModal').classList.remove('show');
+    // Don't reset applicationToDelete here in case user accidentally closes modal
+    // It will be reset when a new delete is initiated or when executeDelete completes
+}
+
+async function executeDelete() {
+    console.log('executeDelete called, applicationToDelete:', applicationToDelete);
+    
+    if (!applicationToDelete) {
+        console.error('No application selected for deletion');
+        showNotification('No application selected for deletion', 'error');
+        return;
+    }
+    
+    if (!applicationToDelete.id) {
+        console.error('Application missing ID:', applicationToDelete);
+        showNotification('Invalid application data', 'error');
+        return;
+    }
+    
+    // Show loading state
+    const deleteBtn = document.querySelector('#deleteModal .btn-danger');
+    const originalText = deleteBtn.innerHTML;
+    deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+    deleteBtn.disabled = true;
+    
+    try {
+        console.log('Deleting application with ID:', applicationToDelete.id);
+        
+        // Delete application and files
+        const result = await window.supabaseUtils.deleteApplication(applicationToDelete.id);
+        
+        if (!result.success) {
+            throw new Error(result.error);
+        }
+        
+        // Show success message
+        showNotification('Application and related files deleted successfully', 'success');
+        
+        // Close modal
+        closeDeleteModal();
+        
+        // Reset the application to delete
+        applicationToDelete = null;
+        
+        // Refresh the applications list
+        await loadApplications();
+        
+        console.log('Application deleted successfully');
+        
+    } catch (error) {
+        console.error('Delete error:', error);
+        
+        // Check if it's a permission issue
+        if (error.message.includes('Permission denied') || error.message.includes('permission')) {
+            showNotification('Permission denied. Please check Supabase RLS policies for delete operations.', 'error');
+        } else {
+            showNotification('Failed to delete application: ' + error.message, 'error');
+        }
+    } finally {
+        // Reset button
+        deleteBtn.innerHTML = originalText;
+        deleteBtn.disabled = false;
+    }
+}
