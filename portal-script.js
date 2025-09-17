@@ -369,9 +369,15 @@ function validateStep2() {
 
 function validateStep3() {
     const cvFile = document.getElementById('cv').files[0];
+    const recommendationFile = document.getElementById('recommendation').files[0];
     
     if (!cvFile) {
         showNotification('Please upload your CV', 'error');
+        return false;
+    }
+    
+    if (!recommendationFile) {
+        showNotification('Please upload your recommendation letter', 'error');
         return false;
     }
     
@@ -525,7 +531,7 @@ function handleFileSelection(e) {
     if (!file) return;
     
     const fieldName = input.name;
-    const maxSize = fieldName === 'cv' ? 5 * 1024 * 1024 : 2 * 1024 * 1024; // 5MB for CV, 2MB for logo
+    const maxSize = (fieldName === 'cv' || fieldName === 'recommendation') ? 5 * 1024 * 1024 : 2 * 1024 * 1024; // 5MB for documents, 2MB for logo
     
     // Validate file size
     if (file.size > maxSize) {
@@ -536,7 +542,8 @@ function handleFileSelection(e) {
     
     // Validate file type
     if (!validateFileType(file, fieldName)) {
-        showNotification(`Invalid file type. Please select a valid ${fieldName === 'cv' ? 'document' : 'image'} file.`, 'error');
+        const fileTypeDesc = (fieldName === 'cv' || fieldName === 'recommendation') ? 'document' : 'image';
+        showNotification(`Invalid file type. Please select a valid ${fileTypeDesc} file.`, 'error');
         input.value = '';
         return;
     }
@@ -554,11 +561,11 @@ function handleFileSelection(e) {
 }
 
 function validateFileType(file, fieldName) {
-    const cvTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    const documentTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
     const imageTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml'];
     
-    if (fieldName === 'cv') {
-        return cvTypes.includes(file.type);
+    if (fieldName === 'cv' || fieldName === 'recommendation') {
+        return documentTypes.includes(file.type);
     } else if (fieldName === 'logo') {
         return imageTypes.includes(file.type);
     }
@@ -668,6 +675,10 @@ function populateReviewData() {
         document.getElementById('reviewCVName').textContent = uploadedFiles.cv.name;
     }
     
+    if (uploadedFiles.recommendation) {
+        document.getElementById('reviewRecommendationName').textContent = uploadedFiles.recommendation.name;
+    }
+    
     if (uploadedFiles.logo) {
         document.getElementById('reviewLogo').style.display = 'flex';
         document.getElementById('reviewLogoName').textContent = uploadedFiles.logo.name;
@@ -697,6 +708,7 @@ async function handleFormSubmission(e) {
         
         // Upload files to Supabase Storage
         let cvUrl = '';
+        let recommendationUrl = '';
         let logoUrl = '';
         
         if (uploadedFiles.cv) {
@@ -708,6 +720,17 @@ async function handleFormSubmission(e) {
             }
             
             cvUrl = cvUploadResult.url;
+        }
+        
+        if (uploadedFiles.recommendation) {
+            const recommendationPath = `${applicationId}/recommendation/${uploadedFiles.recommendation.name}`;
+            const recommendationUploadResult = await window.supabaseUtils.uploadFile(uploadedFiles.recommendation, recommendationPath);
+            
+            if (!recommendationUploadResult.success) {
+                throw new Error('Failed to upload recommendation letter: ' + recommendationUploadResult.error);
+            }
+            
+            recommendationUrl = recommendationUploadResult.url;
         }
         
         if (uploadedFiles.logo) {
@@ -733,6 +756,7 @@ async function handleFormSubmission(e) {
             selected_module: selectedModule,
             motivation: document.getElementById('motivation').value.trim(),
             cv_url: cvUrl,
+            recommendation_letter_url: recommendationUrl,
             logo_url: logoUrl,
             status: 'pending'
         };

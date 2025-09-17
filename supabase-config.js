@@ -97,22 +97,36 @@ window.supabaseUtils = {
             console.log('Attempting login for:', email);
             
             // First, verify admin credentials against our custom admin_users table
-            const { data: adminUser, error: adminError } = await supabaseClient
+            console.log('Searching for admin with email:', email);
+            
+            const { data: adminUsers, error: adminError } = await supabaseClient
                 .from('admin_users')
                 .select('*')
-                .eq('email', email)
-                .single();
+                .eq('email', email);
 
-            console.log('Admin user query result:', { adminUser, adminError });
+            console.log('Admin user query result:', { 
+                adminUsers, 
+                adminError, 
+                adminUsersLength: adminUsers ? adminUsers.length : 0,
+                searchEmail: email 
+            });
 
             if (adminError) {
                 console.error('Database error:', adminError);
                 throw new Error('Database connection error: ' + adminError.message);
             }
             
-            if (!adminUser) {
+            if (!adminUsers || adminUsers.length === 0) {
+                console.error('No admin users found. Available users:', adminUsers);
+                // Try to get all users for debugging
+                const { data: allUsers } = await supabaseClient
+                    .from('admin_users')
+                    .select('email');
+                console.log('All admin users in database:', allUsers);
                 throw new Error('Admin user not found');
             }
+
+            const adminUser = adminUsers[0];
 
             // For simplicity, we'll use a direct password comparison
             // In production, you should use proper password hashing

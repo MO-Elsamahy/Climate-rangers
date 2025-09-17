@@ -236,7 +236,7 @@
                     <div class="form-step" data-step="3">
                         <div class="step-header">
                             <h2>Document Upload</h2>
-                            <p>Upload your CV and organization logo (optional)</p>
+                            <p>Upload your CV, recommendation letter, and organization logo (optional)</p>
                         </div>
 
                         <div class="upload-section">
@@ -261,6 +261,32 @@
                                         <span class="file-size"></span>
                                     </div>
                                     <button type="button" class="remove-file" data-target="cv">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="upload-group">
+                                <label>Upload Recommendation Letter <span class="required">*</span></label>
+                                <div class="file-upload" id="recommendationUpload">
+                                    <input type="file" id="recommendation" name="recommendation" accept=".pdf,.doc,.docx" required>
+                                    <div class="upload-content">
+                                        <i class="fas fa-file-signature"></i>
+                                        <h4>Drop your recommendation letter here or click to browse</h4>
+                                        <p>Supported formats: PDF, DOC, DOCX (Max 5MB)</p>
+                                    </div>
+                                    <div class="upload-progress" style="display: none;">
+                                        <div class="progress-bar"></div>
+                                        <span class="progress-text">0%</span>
+                                    </div>
+                                </div>
+                                <div class="file-info" id="recommendationInfo" style="display: none;">
+                                    <div class="file-details">
+                                        <i class="fas fa-file-signature"></i>
+                                        <span class="file-name"></span>
+                                        <span class="file-size"></span>
+                                    </div>
+                                    <button type="button" class="remove-file" data-target="recommendation">
                                         <i class="fas fa-times"></i>
                                     </button>
                                 </div>
@@ -364,6 +390,11 @@
                                         <i class="fas fa-file-pdf"></i>
                                         <span>CV: </span>
                                         <span id="reviewCVName"></span>
+                                    </div>
+                                    <div class="file-review" id="reviewRecommendation">
+                                        <i class="fas fa-file-signature"></i>
+                                        <span>Recommendation Letter: </span>
+                                        <span id="reviewRecommendationName"></span>
                                     </div>
                                     <div class="file-review" id="reviewLogo" style="display: none;">
                                         <i class="fas fa-image"></i>
