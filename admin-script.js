@@ -25,7 +25,8 @@ const orgTypeMap = {
     'igo': 'IGO', 
     'governmental': 'Governmental',
     'private': 'Private Sector',
-    'university': 'University'
+    'university': 'University',
+    'individual': 'Individual Trainer'
 };
 
 // Initialize dashboard
@@ -483,10 +484,10 @@ function generateApplicationDetails(app) {
                     <i class="fas fa-file-pdf"></i>
                     View CV
                 </a>` : '<span class="detail-value">No CV uploaded</span>'}
-                ${app.recommendation_letter_url ? `<a href="${app.recommendation_letter_url}" target="_blank" class="file-link">
+                ${app.organization_type === 'individual' ? '' : (app.recommendation_letter_url ? `<a href="${app.recommendation_letter_url}" target="_blank" class="file-link">
                     <i class="fas fa-file-signature"></i>
                     View Recommendation Letter
-                </a>` : '<span class="detail-value">No recommendation letter uploaded</span>'}
+                </a>` : '<span class="detail-value">No recommendation letter uploaded</span>')}
                 ${app.logo_url ? `<a href="${app.logo_url}" target="_blank" class="file-link">
                     <i class="fas fa-image"></i>
                     View Organization Logo

@@ -146,6 +146,12 @@ function initializeEventListeners() {
     // File uploads
     initializeFileUploads();
     
+    // Individual Trainer Toggle
+    const individualTrainerToggle = document.getElementById('individualTrainer');
+    if (individualTrainerToggle) {
+        individualTrainerToggle.addEventListener('change', handleIndividualTrainerToggle);
+    }
+    
     // Form validation
     initializeFormValidation();
 }
@@ -301,6 +307,65 @@ function updateStep2NextButton() {
     nextBtn.disabled = !isValid;
 }
 
+// Individual Trainer Toggle Handler
+function handleIndividualTrainerToggle(event) {
+    const isIndividualTrainer = event.target.checked;
+    const organizationGroup = document.getElementById('organizationGroup');
+    const organizationTypeGroup = document.getElementById('organizationTypeGroup');
+    const recommendationGroup = document.getElementById('recommendationGroup');
+    
+    if (isIndividualTrainer) {
+        // Hide organization fields
+        organizationGroup.classList.add('hidden');
+        organizationTypeGroup.classList.add('hidden');
+        recommendationGroup.classList.add('hidden');
+        
+        // Remove required attributes
+        document.getElementById('organization').removeAttribute('required');
+        document.getElementById('organizationType').removeAttribute('required');
+        document.getElementById('recommendation').removeAttribute('required');
+        
+        // Clear values
+        document.getElementById('organization').value = '';
+        document.getElementById('organizationType').value = '';
+        document.getElementById('recommendation').value = '';
+        
+        // Update step description
+        const stepDescription = document.querySelector('.step-header p');
+        if (stepDescription) {
+            stepDescription.textContent = 'Tell us about yourself as an individual trainer';
+        }
+        
+        // Update step 3 description
+        const step3Description = document.querySelector('[data-step="3"] .step-header p');
+        if (step3Description) {
+            step3Description.textContent = 'Upload your CV and organization logo (optional)';
+        }
+    } else {
+        // Show organization fields
+        organizationGroup.classList.remove('hidden');
+        organizationTypeGroup.classList.remove('hidden');
+        recommendationGroup.classList.remove('hidden');
+        
+        // Add required attributes back
+        document.getElementById('organization').setAttribute('required', 'required');
+        document.getElementById('organizationType').setAttribute('required', 'required');
+        document.getElementById('recommendation').setAttribute('required', 'required');
+        
+        // Update step description
+        const stepDescription = document.querySelector('.step-header p');
+        if (stepDescription) {
+            stepDescription.textContent = 'Tell us about yourself and your organization';
+        }
+        
+        // Update step 3 description
+        const step3Description = document.querySelector('[data-step="3"] .step-header p');
+        if (step3Description) {
+            step3Description.textContent = 'Upload your CV, recommendation letter, and organization logo (optional)';
+        }
+    }
+}
+
 // Form Validation
 function initializeFormValidation() {
     // Real-time validation for step 2
@@ -333,7 +398,14 @@ function validateCurrentStep() {
 }
 
 function validateStep1() {
-    const requiredFields = ['fullName', 'organization', 'organizationType', 'email', 'phone'];
+    const isIndividualTrainer = document.getElementById('individualTrainer').checked;
+    const requiredFields = ['fullName', 'email', 'phone'];
+    
+    // Add organization fields only if not individual trainer
+    if (!isIndividualTrainer) {
+        requiredFields.push('organization', 'organizationType');
+    }
+    
     let isValid = true;
     
     requiredFields.forEach(fieldName => {
@@ -370,13 +442,15 @@ function validateStep2() {
 function validateStep3() {
     const cvFile = document.getElementById('cv').files[0];
     const recommendationFile = document.getElementById('recommendation').files[0];
+    const isIndividualTrainer = document.getElementById('individualTrainer').checked;
     
     if (!cvFile) {
         showNotification('Please upload your CV', 'error');
         return false;
     }
     
-    if (!recommendationFile) {
+    // Only require recommendation letter if not individual trainer
+    if (!isIndividualTrainer && !recommendationFile) {
         showNotification('Please upload your recommendation letter', 'error');
         return false;
     }
@@ -645,16 +719,23 @@ function formatFileSize(bytes) {
 
 // Review Data Population
 function populateReviewData() {
+    const isIndividualTrainer = document.getElementById('individualTrainer').checked;
+    
     // Personal Information
     document.getElementById('reviewName').textContent = document.getElementById('fullName').value;
-    document.getElementById('reviewOrganization').textContent = document.getElementById('organization').value;
     document.getElementById('reviewEmail').textContent = document.getElementById('email').value;
     document.getElementById('reviewPhone').textContent = document.getElementById('phone').value;
     
-    // Organization Type
-    const orgTypeSelect = document.getElementById('organizationType');
-    const orgTypeText = orgTypeSelect.options[orgTypeSelect.selectedIndex].text;
-    document.getElementById('reviewType').textContent = orgTypeText;
+    // Organization Information (only if not individual trainer)
+    if (isIndividualTrainer) {
+        document.getElementById('reviewOrganization').textContent = 'Individual Trainer';
+        document.getElementById('reviewType').textContent = 'Individual';
+    } else {
+        document.getElementById('reviewOrganization').textContent = document.getElementById('organization').value;
+        const orgTypeSelect = document.getElementById('organizationType');
+        const orgTypeText = orgTypeSelect.options[orgTypeSelect.selectedIndex].text;
+        document.getElementById('reviewType').textContent = orgTypeText;
+    }
     
     // Selected Training
     if (selectedTopic && selectedModule) {
@@ -675,7 +756,11 @@ function populateReviewData() {
         document.getElementById('reviewCVName').textContent = uploadedFiles.cv.name;
     }
     
-    if (uploadedFiles.recommendation) {
+    // Recommendation letter (only if not individual trainer)
+    if (isIndividualTrainer) {
+        document.getElementById('reviewRecommendation').style.display = 'none';
+    } else if (uploadedFiles.recommendation) {
+        document.getElementById('reviewRecommendation').style.display = 'flex';
         document.getElementById('reviewRecommendationName').textContent = uploadedFiles.recommendation.name;
     }
     
@@ -722,7 +807,9 @@ async function handleFormSubmission(e) {
             cvUrl = cvUploadResult.url;
         }
         
-        if (uploadedFiles.recommendation) {
+        // Only upload recommendation letter if not individual trainer
+        const isIndividualTrainer = document.getElementById('individualTrainer').checked;
+        if (!isIndividualTrainer && uploadedFiles.recommendation) {
             const recommendationPath = `${applicationId}/recommendation/${uploadedFiles.recommendation.name}`;
             const recommendationUploadResult = await window.supabaseUtils.uploadFile(uploadedFiles.recommendation, recommendationPath);
             
@@ -748,8 +835,8 @@ async function handleFormSubmission(e) {
         const applicationData = {
             application_id: applicationId,
             full_name: document.getElementById('fullName').value.trim(),
-            organization: document.getElementById('organization').value.trim(),
-            organization_type: document.getElementById('organizationType').value,
+            organization: isIndividualTrainer ? 'Individual Trainer' : document.getElementById('organization').value.trim(),
+            organization_type: isIndividualTrainer ? 'individual' : document.getElementById('organizationType').value,
             email: document.getElementById('email').value.trim(),
             phone: document.getElementById('phone').value.trim(),
             selected_topic: selectedTopic,

@@ -89,6 +89,21 @@
                             <p>Tell us about yourself and your organization</p>
                         </div>
                         
+                        <!-- Individual Trainer Toggle -->
+                        <div class="trainer-toggle-section">
+                            <div class="toggle-container">
+                                <label class="toggle-label">
+                                    <input type="checkbox" id="individualTrainer" name="individualTrainer">
+                                    <span class="toggle-slider"></span>
+                                    <span class="toggle-text">
+                                        <i class="fas fa-user-graduate"></i>
+                                        I'm Individual Trainer
+                                    </span>
+                                </label>
+                                <p class="toggle-description">Check this if you're applying as an individual trainer (not affiliated with an organization)</p>
+                            </div>
+                        </div>
+
                         <div class="form-grid">
                             <div class="form-group full-width">
                                 <label for="fullName">Full Name <span class="required">*</span></label>
@@ -98,7 +113,7 @@
                                 </div>
                             </div>
 
-                            <div class="form-group full-width">
+                            <div class="form-group full-width" id="organizationGroup">
                                 <label for="organization">Affiliated Organization <span class="required">*</span></label>
                                 <input type="text" id="organization" name="organization" required>
                                 <div class="input-icon">
@@ -106,7 +121,7 @@
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="form-group" id="organizationTypeGroup">
                                 <label for="organizationType">Organization Type <span class="required">*</span></label>
                                 <select id="organizationType" name="organizationType" required>
                                     <option value="">Select Type</option>
@@ -266,8 +281,8 @@
                                 </div>
                             </div>
 
-                            <div class="upload-group">
-                                <label>Upload Recommendation Letter Signed from your Organization<span class="required">*</span></label>
+                            <div class="upload-group" id="recommendationGroup">
+                                <label>Upload Recommendation Letter <span class="required">*</span></label>
                                 <div class="file-upload" id="recommendationUpload">
                                     <input type="file" id="recommendation" name="recommendation" accept=".pdf,.doc,.docx" required>
                                     <div class="upload-content">
@@ -460,5 +475,4 @@
     <!-- Portal Script -->
     <script src="portal-script.js"></script>
 </body>
-
 </html>
